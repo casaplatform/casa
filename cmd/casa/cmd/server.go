@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -79,7 +78,6 @@ var serverCmd = &cobra.Command{
 			environment.WithBus(bus),
 			environment.WithViper(viper.GetViper()),
 			environment.WithRegistry(environment.Env.ServiceRegistry),
-			environment.WithLogger(new(logLogger)),
 		)
 
 		// Start listening for control-c and cleanly exit when called
@@ -105,7 +103,7 @@ var serverCmd = &cobra.Command{
 			os.Exit(status)
 		}()
 
-		for key, _ := range env.GetStringMap("Services") {
+		for key := range env.GetStringMap("Services") {
 			if env.GetBool("Services." + key + ".Enabled") {
 				config := env.Sub("Services." + key)
 				config.Set("MQTT", env.Viper.Get("MQTT"))
@@ -143,13 +141,6 @@ var serverCmd = &cobra.Command{
 			runtime.Gosched() // Play nice with go routines
 		}
 	},
-}
-
-// A simple casa.Logger that uses std lib log package
-type logLogger struct{}
-
-func (f logLogger) Log(a ...interface{}) {
-	log.Println(a...)
 }
 
 // handles logging for the gomqqt.Broker
