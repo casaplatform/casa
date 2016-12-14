@@ -3,6 +3,7 @@ language: go
 go:
   - 1.x
   - tip
+script: cd cmd/casa && go test ./...
 matrix:
   allow_failures:
     - go: tip
