@@ -1,4 +1,6 @@
-[![Travis](https://img.shields.io/travis/casaplatform/casa.svg)]() [![GoDoc](https://godoc.org/github.com/casaplatform/casa?status.svg)](https://godoc.org/github.com/casaplatform/casa)
+[![Travis](https://img.shields.io/travis/casaplatform/casa.svg)]() 
+[![GoDoc](https://godoc.org/github.com/casaplatform/casa?status.svg)](https://godoc.org/github.com/casaplatform/casa)
+[![Go Report Card](https://goreportcard.com/badge/github.com/casaplatform/casa)](https://goreportcard.com/report/github.com/casaplatform/casa)
 
 Random notes for now...
 
