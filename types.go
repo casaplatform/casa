@@ -37,7 +37,7 @@ type MessageBus interface {
 	NewClient() MessageClient
 }
 
-// MessageClient sends and recieves Messages to a MessageBus
+// MessageClient sends and receives Messages to a MessageBus
 type MessageClient interface {
 	// Register a function to call when a message or error is received
 	Handle(func(msg *Message, err error))
