@@ -1,3 +1,5 @@
+[![Travis](https://img.shields.io/travis/casaplatform/casa.svg)]() [![GoDoc](https://godoc.org/github.com/casaplatform/casa?status.svg)](https://godoc.org/github.com/casaplatform/casa)
+
 Random notes for now...
 
 Casa is designed to be as flexible as possible. That is why this package is
