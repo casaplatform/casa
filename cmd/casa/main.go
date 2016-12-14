@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/casaplatform/casa/cmd/casa/cmd"
@@ -35,6 +36,7 @@ func main() {
 	// in order to allow any other deferred function to run.
 	// See https://goo.gl/BLKYGv
 	env := environment.Env
+	env.WithOptions(environment.WithLogger(new(logLogger)))
 	var err error
 	defer func() {
 		if err != nil {
@@ -42,7 +44,7 @@ func main() {
 			if err, ok := err.(stackTracer); ok {
 				env.Log("Casa has failed. Stack trace:")
 				for _, f := range err.StackTrace() {
-					fmt.Printf("%+s:%d", f)
+					fmt.Printf("%+s:%d", f, f)
 				}
 				os.Exit(1)
 			} else {
@@ -56,4 +58,11 @@ func main() {
 
 type stackTracer interface {
 	StackTrace() errors.StackTrace
+}
+
+// A simple casa.Logger that uses std lib log package
+type logLogger struct{}
+
+func (f logLogger) Log(a ...interface{}) {
+	log.Println(a...)
 }
