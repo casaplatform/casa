@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"crypto/tls"
+	"math/rand"
 	"os"
 	"os/signal"
 	"runtime"
@@ -46,6 +47,7 @@ func init() {
 	// is called directly, e.g.:
 	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
+	rand.Seed(time.Now().UnixNano())
 }
 
 // serverCmd represents the server command
@@ -75,9 +77,23 @@ var serverCmd = &cobra.Command{
 			}
 		}
 
+		// If the user has specifed authorized user names to connect,
+		// we need to add our own to the list so that the services
+		// can connect to the broker.
+		users := viper.GetStringMapString("MQTT.Users")
+		var serviceUser, servicePass string
+		var usingUsers bool
+		if len(users) > 0 {
+			serviceUser = getRand()
+			servicePass = getRand()
+			usingUsers = true
+			users[serviceUser] = servicePass
+		}
+
 		// Create a new MessageBus by running our own MQTT broker
 		bus, err := mqtt.New(
 			mqtt.TLS(cert),
+			mqtt.Users(users),
 			mqtt.ListenOn(viper.GetStringSlice("MQTT.Listen")...),
 			mqtt.ListenOn("tcp://127.0.0.1:1883"),
 			mqtt.BrokerLogger(brokerlogger.Log),
@@ -120,7 +136,10 @@ var serverCmd = &cobra.Command{
 		for key := range env.GetStringMap("Services") {
 			if env.GetBool("Services." + key + ".Enabled") {
 				config := env.Sub("Services." + key)
-				//config.Set("MQTT", env.Viper.Get("MQTT"))
+				if usingUsers {
+					config.Set("MQTT.User", serviceUser)
+					config.Set("MQTT.Pass", servicePass)
+				}
 
 				svc := env.GetService(key)
 				if svc == nil {
@@ -156,6 +175,16 @@ var serverCmd = &cobra.Command{
 			runtime.Gosched() // Play nice with go routines
 		}
 	},
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func getRand() string {
+	b := make([]rune, rand.Intn(15))
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
 
 // handles logging for the gomqqt.Broker
