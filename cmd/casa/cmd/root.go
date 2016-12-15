@@ -67,7 +67,10 @@ var configDefaults = map[string]interface{}{
 	"Cores": 0,    // Use all cores
 	"Debug": true, // Print debugging output
 
-	"MQTT.Listen": "tcp://:1883",
+	"MQTT.Listen":          []string{"tcp://:1883"},
+	"MQTT.TLS.Enabled":     false,
+	"MQTT.TLS.Certificate": "",
+	"MQTT.TLS.Key":         "",
 
 	"Services.Logger.Enabled": true,
 	"Services.Logger.Topics":  []string{"#"}, // Subscribe to all by default

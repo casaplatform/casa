@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"os"
 	"os/signal"
 	"runtime"
@@ -62,10 +63,23 @@ var serverCmd = &cobra.Command{
 		brokerlogger := &brokerLogger{
 			Logger: env.Logger,
 		}
+		var cert tls.Certificate
+		var err error
+		if viper.GetBool("MQTT.TLS.Enabled") {
+			cert, err = tls.LoadX509KeyPair(
+				viper.GetString("MQTT.TLS.Certificate"),
+				viper.GetString("MQTT.TLS.Key"))
+
+			if err != nil {
+				return errors.Wrap(err, "failed loading TLS certificate")
+			}
+		}
 
 		// Create a new MessageBus by running our own MQTT broker
 		bus, err := mqtt.New(
-			mqtt.ListenOn(viper.GetString("MQTT.Listen")),
+			mqtt.TLS(cert),
+			mqtt.ListenOn(viper.GetStringSlice("MQTT.Listen")...),
+			mqtt.ListenOn("tcp://127.0.0.1:1883"),
 			mqtt.BrokerLogger(brokerlogger.Log),
 		)
 
@@ -106,7 +120,7 @@ var serverCmd = &cobra.Command{
 		for key := range env.GetStringMap("Services") {
 			if env.GetBool("Services." + key + ".Enabled") {
 				config := env.Sub("Services." + key)
-				config.Set("MQTT", env.Viper.Get("MQTT"))
+				//config.Set("MQTT", env.Viper.Get("MQTT"))
 
 				svc := env.GetService(key)
 				if svc == nil {
@@ -126,10 +140,11 @@ var serverCmd = &cobra.Command{
 				select {
 				case err := <-c:
 					if err != nil {
-						env.Log("Failed starting service")
+						env.Log("Failed starting", key, "service")
+						env.Log(err)
 						continue
 					}
-					env.Log("Service started")
+					env.Log(key, "service started")
 				case <-time.After(1 * time.Second):
 					env.Log("Timeout while starting service")
 				}
