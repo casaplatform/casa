@@ -1,5 +1,6 @@
 [![Release](https://img.shields.io/github/release/casaplatform/casa.svg)](https://github.com/casaplatform/casa/releases)
 [![Travis](https://img.shields.io/travis/casaplatform/casa.svg)]() 
+[![Coverage Status](https://coveralls.io/repos/github/casaplatform/casa/badge.svg?branch=master)](https://coveralls.io/github/casaplatform/casa?branch=master)
 [![GoDoc](https://godoc.org/github.com/casaplatform/casa?status.svg)](https://godoc.org/github.com/casaplatform/casa)
 [![Go Report Card](https://goreportcard.com/badge/github.com/casaplatform/casa)](https://goreportcard.com/report/github.com/casaplatform/casa)
 
@@ -17,8 +18,11 @@ know the bridge IP and have a user name already generated. This will be
 automated in the future. 
 
 
-* Casa starts an MQTT broker on port 1883 with ZERO security. This should
-  probably be the first improvement.
+* Casa starts an MQTT broker on port 1883 with ZERO security. It is possible to
+  enable TLS, just adjust the config and generate a certificate and a key.
+  Support for letsencrypt automatic certificates is being worked on.
+
+* Each service communicates with the MQTT broker via localhost:1883.
 
 * We should also add the ability to use an external MQTT broker if desired.
 
