@@ -118,6 +118,11 @@ var serverCmd = &cobra.Command{
 			env.Log("\nsignal: ", sig)
 			var status int
 			for key, s := range env.GetAllServices() {
+				if !env.GetBool("Services." + key + ".Enabled") {
+					continue
+				}
+
+				env.Log("Stopping service", key)
 				err := s.Stop()
 				if err != nil {
 					env.Log("Error stopping service", key, "::", err)
