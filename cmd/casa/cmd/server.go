@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"crypto/tls"
+	"fmt"
 	"math/rand"
 	"net"
 	"os"
@@ -210,7 +211,7 @@ func (bl *brokerLogger) Log(event broker.LogEvent, client *broker.Client,
 		default:
 			bl.Logger.Log("New error encountered:")
 			bl.Logger.Log(err)
-			fmt.Printlf("%#v\n", err)
+			fmt.Printf("%#v\n", err)
 		}
 	}
 
