@@ -17,6 +17,7 @@ package cmd
 import (
 	"crypto/tls"
 	"math/rand"
+	"net"
 	"os"
 	"os/signal"
 	"runtime"
@@ -28,7 +29,6 @@ import (
 	"github.com/casaplatform/mqtt"
 	"github.com/gomqtt/broker"
 	"github.com/gomqtt/packet"
-	"github.com/gomqtt/transport"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -199,23 +199,51 @@ type brokerLogger struct {
 
 // BrokerLogger logs errors from the MQTT broker
 func (bl *brokerLogger) Log(event broker.LogEvent, client *broker.Client,
-	packet packet.Packet, message *packet.Message, err error) {
+	pkt packet.Packet, message *packet.Message, err error) {
 	if err != nil {
+		//fmt.Printf("%#v\n", err)
 		switch err.(type) {
-		case transport.Error:
-			e := err.(transport.Error)
-			switch e.Code() {
-			// NetworkError and ConnectionClose happen frequently
-			// due to mobile clients dropping connections, etc.
-			// I don't think we need to worry about them too much.
-			case transport.NetworkError:
-			case transport.ConnectionClose:
-
-			default:
-				bl.Logger.Log("Transport error", e.Code(), e.Err())
-			}
+		case *net.OpError:
+			// These errors happen all the time as clients come and
+			// go, best to just ignore them...
+			//bl.Logger.Log("net error:", err)
 		default:
+			bl.Logger.Log("New error encountered:")
 			bl.Logger.Log(err)
+			fmt.Printlf("%#v\n", err)
+		}
+	}
+
+	// Added to sort out later
+	switch event {
+	case broker.NewConnection:
+	case broker.PacketReceived:
+	case broker.MessagePublished:
+	case broker.MessageForwarded:
+	case broker.PacketSent:
+	case broker.LostConnection:
+	case broker.TransportError:
+	case broker.SessionError:
+	case broker.BackendError:
+	case broker.ClientError:
+	}
+
+	if pkt != nil {
+		switch pkt.Type() {
+		case packet.CONNECT:
+		case packet.CONNACK:
+		case packet.PUBLISH:
+		case packet.PUBACK:
+		case packet.PUBREC:
+		case packet.PUBREL:
+		case packet.PUBCOMP:
+		case packet.SUBSCRIBE:
+		case packet.SUBACK:
+		case packet.UNSUBSCRIBE:
+		case packet.UNSUBACK:
+		case packet.PINGREQ:
+		case packet.PINGRESP:
+		case packet.DISCONNECT:
 		}
 	}
 }
