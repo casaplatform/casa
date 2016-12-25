@@ -19,16 +19,18 @@ import (
 	"log"
 	"os"
 
+	"github.com/pkg/errors"
+
 	"github.com/casaplatform/casa/cmd/casa/cmd"
 	"github.com/casaplatform/casa/cmd/casa/environment"
 
 	// These imports are to enable these "plugins". This will change once
 	// plugin support is released for Go.
+	_ "github.com/casaplatform/daytime"
 	_ "github.com/casaplatform/hue"
 	_ "github.com/casaplatform/logger"
+	_ "github.com/casaplatform/rules"
 	_ "github.com/casaplatform/storage"
-
-	"github.com/pkg/errors"
 )
 
 func main() {
